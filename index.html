@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>German Trainer Pro</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Головне меню -->
+    <div id="mainMenu" class="main-menu">
+        <div class="menu-content">
+            <h1>🇩🇪 German Trainer Pro</h1>
+            <p class="subtitle">Вивчай німецьку з задоволенням</p>
+            <div class="menu-buttons">
+                <button class="menu-btn" onclick="showMode('textChoice')">
+                    <span class="btn-icon">📚</span>
+                    <span class="btn-text">Тексти та слова</span>
+                </button>
+                <button class="menu-btn" onclick="showMode('game')">
+                    <span class="btn-icon">🎮</span>
+                    <span class="btn-text">Гра: Німецькі цифри</span>
+                </button>
+                <button class="menu-btn" onclick="showMode('settings')">
+                    <span class="btn-icon">⚙️</span>
+                    <span class="btn-text">Налаштування</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Вибір типу текстів -->
+    <div id="textChoice" class="main-menu" style="display:none;">
+        <div class="menu-content">
+            <h2>Оберіть режим</h2>
+            <div class="menu-buttons">
+                <button class="menu-btn" onclick="showMode('builtinTexts')">
+                    <span class="btn-icon">📖</span>
+                    <span class="btn-text">Вбудовані тексти</span>
+                </button>
+                <button class="menu-btn" onclick="showMode('customTexts')">
+                    <span class="btn-icon">✏️</span>
+                    <span class="btn-text">Власні тексти</span>
+                </button>
+                <button class="menu-btn secondary" onclick="showMainMenu()">
+                    <span class="btn-icon">←</span>
+                    <span class="btn-text">Назад</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Вбудовані тексти -->
+    <div id="builtinTexts" class="mode-container" style="display:none;">
+        <header class="app-header">
+            <button class="back-btn" onclick="showMode('textChoice')">← Назад</button>
+            <h2>Вбудовані тексти</h2>
+        </header>
+        <main class="builtin-main">
+            <aside class="builtin-sidebar">
+                <h3>Тексти для вивчення</h3>
+                <ul id="builtinTextList"></ul>
+            </aside>
+            <section class="text-display">
+                <div class="editor-header">
+                    <button id="readBuiltinTextBtn" class="read-btn" title="Читати текст">🔊 Читати</button>
+                    <button id="stopBuiltinTextBtn" class="stop-btn" style="display:none;" title="Зупинити">⏹ Зупинити</button>
+                </div>
+                <div id="builtinTextViewer"></div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Власні тексти -->
+    <div id="customTexts" class="mode-container" style="display:none;">
+        <header class="app-header">
+            <button class="back-btn" onclick="showMode('textChoice')">← Назад</button>
+            <h2>Власні тексти</h2>
+            <div class="header-controls">
+                <button id="toggleSidebarBtn" class="icon-btn" title="Показати/Сховати Explorer">☰</button>
+            </div>
+        </header>
+        <main class="text-main">
+            <aside id="sidebar">
+                <div class="sidebar-header">
+                    <span class="sidebar-title">EXPLORER</span>
+                    <div class="sidebar-actions">
+                        <button class="sidebar-icon-btn" id="newFileBtn" title="Новий файл">📄</button>
+                        <button class="sidebar-icon-btn" id="newFolderBtnSidebar" title="Нова папка">📁</button>
+                        <button class="sidebar-icon-btn" id="collapseAllBtn" title="Згорнути все">⊟</button>
+                    </div>
+                </div>
+                <ul id="folderTree"></ul>
+            </aside>
+            <section class="editor-section">
+                <div class="editor-header">
+                    <button id="readCustomTextBtn" class="read-btn" title="Читати текст">🔊 Читати</button>
+                    <button id="stopCustomTextBtn" class="stop-btn" style="display:none;" title="Зупинити">⏹ Зупинити</button>
+                </div>
+                <textarea id="textInput" placeholder="Введіть текст тут... Формат: слово[переклад|читання]"></textarea>
+                <div id="textViewer"></div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Режим налаштувань -->
+    <div id="settingsMode" class="mode-container" style="display:none;">
+        <header class="app-header">
+            <button class="back-btn" onclick="showMainMenu()">← Назад</button>
+            <h2>Налаштування</h2>
+        </header>
+        <main class="settings-main">
+            <div class="settings-container">
+                <div class="settings-section">
+                    <h3>🎵 Фонова музика</h3>
+                    <div class="setting-item">
+                        <label class="switch">
+                            <input type="checkbox" id="musicToggle">
+                            <span class="slider"></span>
+                        </label>
+                        <span>Увімкнути музику</span>
+                    </div>
+                    <div class="setting-item">
+                        <label>Гучність:</label>
+                        <input type="range" id="volumeSlider" min="0" max="100" value="50">
+                        <span id="volumeValue">50%</span>
+                    </div>
+                    <div class="setting-item">
+                        <label>Вибрати трек:</label>
+                        <select id="musicSelect">
+                            <option value="">Без музики</option>
+                            <option value="lofi">Lofi Study</option>
+                            <option value="ambient">Ambient Relax</option>
+                            <option value="classical">Classical Piano</option>
+                            <option value="custom">Власна музика</option>
+                        </select>
+                    </div>
+                    <div class="setting-item" id="customMusicSection" style="display:none;">
+                        <label>URL вашої музики:</label>
+                        <input type="text" id="customMusicUrl" placeholder="https://example.com/music.mp3">
+                        <button id="addCustomMusic" class="secondary-btn">Додати</button>
+                    </div>
+                    <div class="music-info">
+                        <p>💡 <strong>Як додати свою музику:</strong></p>
+                        <ol>
+                            <li>Завантажте MP3 файл на хостинг (Google Drive, Dropbox, тощо)</li>
+                            <li>Отримайте пряме посилання на файл</li>
+                            <li>Вставте URL у поле вище</li>
+                        </ol>
+                        <p>Або відредагуйте файл <code>script.js</code> та додайте свої треки в об'єкт <code>musicTracks</code></p>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Режим гри -->
+    <div id="gameMode" class="mode-container" style="display:none;">
+        <header class="app-header">
+            <button class="back-btn" onclick="showMainMenu()">← Назад</button>
+            <h2>Німецькі цифри</h2>
+        </header>
+        <main class="game-main">
+            <!-- Налаштування гри -->
+            <div id="gameSettings" class="game-settings">
+                <h3>Налаштування</h3>
+                <div class="setting-group">
+                    <label>Діапазон чисел:</label>
+                    <div class="range-buttons">
+                        <button class="range-btn active" data-range="99">Десятки (0-99)</button>
+                        <button class="range-btn" data-range="999">Сотні (0-999)</button>
+                        <button class="range-btn" data-range="9999">Тисячі (0-9999)</button>
+                    </div>
+                </div>
+                <div class="setting-group">
+                    <label>Режим:</label>
+                    <div class="mode-buttons">
+                        <button class="mode-btn active" data-mode="training">🎯 Тренування</button>
+                        <button class="mode-btn" data-mode="challenge">⚡ Виклик (2 спроби)</button>
+                    </div>
+                </div>
+                <button id="startGameBtn" class="start-btn">Почати гру</button>
+            </div>
+
+            <!-- Ігрове поле -->
+            <div id="gamePlay" class="game-play" style="display:none;">
+                <div class="game-info">
+                    <div class="info-item">
+                        <span class="info-label">Режим:</span>
+                        <span id="currentMode">Тренування</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Діапазон:</span>
+                        <span id="currentRange">0-99</span>
+                    </div>
+                    <div class="info-item" id="attemptsInfo" style="display:none;">
+                        <span class="info-label">Спроби:</span>
+                        <span id="attemptsLeft">2</span>
+                    </div>
+                </div>
+
+                <div class="number-display">
+                    <div class="number-card" id="numberCard">
+                        <span id="currentNumber">42</span>
+                    </div>
+                    <button class="speak-btn" id="speakNumberBtn">🔊 Озвучити</button>
+                </div>
+
+                <div class="input-area">
+                    <input type="text" id="answerInput" placeholder="Введіть німецькою..." autocomplete="off">
+                    <button id="checkBtn" class="check-btn">Перевірити</button>
+                </div>
+
+                <div id="resultArea" class="result-area"></div>
+
+                <div class="game-controls">
+                    <button id="nextNumberBtn" class="next-btn">Наступне число →</button>
+                    <button id="backToSettingsBtn" class="secondary-btn">⚙️ Налаштування</button>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
