@@ -2,8 +2,12 @@
 <html lang="uk">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#6a5acd">
     <title>German Trainer Pro</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Literata:opsz,wght@7..72,400;7..72,600&display=swap">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -61,12 +65,41 @@
                 <h3>Тексти для вивчення</h3>
                 <ul id="builtinTextList"></ul>
             </aside>
-            <section class="text-display">
-                <div class="editor-header">
+            <section class="text-display reader-area">
+                <div class="reader-toolbar">
+                    <div class="tool-group">
+                        <button class="tool-btn" data-reader="smaller" title="Зменшити шрифт">A−</button>
+                        <button class="tool-btn" data-reader="bigger" title="Збільшити шрифт">A+</button>
+                    </div>
+                    <div class="tool-group" aria-label="Тема читання">
+                        <button class="theme-dot" data-theme-set="light" title="Світла тема"></button>
+                        <button class="theme-dot" data-theme-set="sepia" title="Сепія"></button>
+                        <button class="theme-dot" data-theme-set="dark" title="Темна тема"></button>
+                    </div>
+                    <button class="tool-btn toggle" data-reader="translations" title="Показувати переклад під кожним словом"><span class="lbl-long">Переклад під словами</span><span class="lbl-short">Переклад</span></button>
+                    <label class="tool-speed"><span class="lbl-long">Швидкість</span>
+                        <select data-reader="rate" title="Швидкість озвучки">
+                            <option value="0.6">повільно</option>
+                            <option value="0.8">нормально</option>
+                            <option value="1">швидко</option>
+                        </select>
+                    </label>
+                    <button class="tool-btn" data-reader="focus" title="Читати на весь екран">⛶<span class="lbl-long"> Весь екран</span></button>
+                    <div class="tool-spacer"></div>
                     <button id="readBuiltinTextBtn" class="read-btn" title="Читати текст">🔊 Читати</button>
                     <button id="stopBuiltinTextBtn" class="stop-btn" style="display:none;" title="Зупинити">⏹ Зупинити</button>
+                    <button class="tool-btn focus-exit" data-reader="exit-focus" title="Вийти з повноекранного режиму">✕</button>
                 </div>
-                <div id="builtinTextViewer"></div>
+                <article id="builtinTextViewer" class="reader-card">
+                    <h2 class="reader-title" id="builtinTitle"></h2>
+                    <div class="reader-text" id="builtinText"></div>
+                </article>
+                <nav class="pager" id="builtinPager" hidden>
+                    <button class="pager-btn" data-page="prev" title="Попередня сторінка">←</button>
+                    <span class="pager-info"></span>
+                    <button class="pager-btn" data-page="next" title="Наступна сторінка">→</button>
+                </nav>
+                <p class="reader-hint">Натисніть на слово, щоб побачити переклад і почути вимову</p>
             </section>
         </main>
     </div>
@@ -77,28 +110,60 @@
             <button class="back-btn" onclick="showMode('textChoice')">← Назад</button>
             <h2>Власні тексти</h2>
             <div class="header-controls">
-                <button id="toggleSidebarBtn" class="icon-btn" title="Показати/Сховати Explorer">☰</button>
+                <button id="toggleSidebarBtn" class="icon-btn" title="Показати/Сховати список текстів">☰</button>
             </div>
         </header>
         <main class="text-main">
             <aside id="sidebar">
                 <div class="sidebar-header">
-                    <span class="sidebar-title">EXPLORER</span>
+                    <span class="sidebar-title">МОЇ ТЕКСТИ</span>
                     <div class="sidebar-actions">
-                        <button class="sidebar-icon-btn" id="newFileBtn" title="Новий файл">📄</button>
+                        <button class="sidebar-icon-btn" id="newFileBtn" title="Новий текст">📄</button>
                         <button class="sidebar-icon-btn" id="newFolderBtnSidebar" title="Нова папка">📁</button>
+                        <button class="sidebar-icon-btn" id="uploadFileBtn" title="Завантажити текст з файлу (.txt)">📥</button>
                         <button class="sidebar-icon-btn" id="collapseAllBtn" title="Згорнути все">⊟</button>
                     </div>
                 </div>
+                <button class="upload-btn" id="uploadFileBtn2">📥 Завантажити файл</button>
+                <input type="file" id="fileInput" accept=".txt,.md,.text,text/plain" multiple hidden>
                 <ul id="folderTree"></ul>
             </aside>
-            <section class="editor-section">
-                <div class="editor-header">
+            <section class="editor-section reader-area" id="customReaderArea">
+                <div class="reader-toolbar">
+                    <div class="tool-group">
+                        <button class="tool-btn" data-reader="smaller" title="Зменшити шрифт">A−</button>
+                        <button class="tool-btn" data-reader="bigger" title="Збільшити шрифт">A+</button>
+                    </div>
+                    <div class="tool-group" aria-label="Тема читання">
+                        <button class="theme-dot" data-theme-set="light" title="Світла тема"></button>
+                        <button class="theme-dot" data-theme-set="sepia" title="Сепія"></button>
+                        <button class="theme-dot" data-theme-set="dark" title="Темна тема"></button>
+                    </div>
+                    <button class="tool-btn toggle" data-reader="translations" title="Показувати переклад під кожним словом"><span class="lbl-long">Переклад під словами</span><span class="lbl-short">Переклад</span></button>
+                    <label class="tool-speed"><span class="lbl-long">Швидкість</span>
+                        <select data-reader="rate" title="Швидкість озвучки">
+                            <option value="0.6">повільно</option>
+                            <option value="0.8">нормально</option>
+                            <option value="1">швидко</option>
+                        </select>
+                    </label>
+                    <button id="toggleEditorBtn" class="tool-btn toggle active" title="Показати/сховати редактор">✏️<span class="lbl-long"> Редактор</span></button>
+                    <button class="tool-btn" data-reader="focus" title="Читати на весь екран">⛶<span class="lbl-long"> Весь екран</span></button>
+                    <div class="tool-spacer"></div>
                     <button id="readCustomTextBtn" class="read-btn" title="Читати текст">🔊 Читати</button>
                     <button id="stopCustomTextBtn" class="stop-btn" style="display:none;" title="Зупинити">⏹ Зупинити</button>
+                    <button class="tool-btn focus-exit" data-reader="exit-focus" title="Вийти з повноекранного режиму">✕</button>
                 </div>
-                <textarea id="textInput" placeholder="Введіть текст тут... Формат: слово[переклад|читання]"></textarea>
-                <div id="textViewer"></div>
+                <textarea id="textInput" placeholder="Введіть текст тут... Формат: слово[переклад|читання], для фрази: {guten Morgen}[доброго ранку|ґутен морґен]"></textarea>
+                <article id="textViewer" class="reader-card">
+                    <div class="reader-text" id="customText"></div>
+                </article>
+                <nav class="pager" id="customPager" hidden>
+                    <button class="pager-btn" data-page="prev" title="Попередня сторінка">←</button>
+                    <span class="pager-info"></span>
+                    <button class="pager-btn" data-page="next" title="Наступна сторінка">→</button>
+                </nav>
+                <div class="drop-overlay">📥 Відпустіть файл, щоб додати текст</div>
             </section>
         </main>
     </div>
@@ -113,7 +178,7 @@
             <div class="settings-container">
                 <div class="settings-section">
                     <h3>🎵 Фонова музика</h3>
-                    <div class="setting-item">
+                    <div class="setting-item setting-toggle">
                         <label class="switch">
                             <input type="checkbox" id="musicToggle">
                             <span class="slider"></span>
@@ -121,33 +186,44 @@
                         <span>Увімкнути музику</span>
                     </div>
                     <div class="setting-item">
-                        <label>Гучність:</label>
-                        <input type="range" id="volumeSlider" min="0" max="100" value="50">
-                        <span id="volumeValue">50%</span>
-                    </div>
-                    <div class="setting-item">
-                        <label>Вибрати трек:</label>
+                        <label for="musicSelect">Музика:</label>
                         <select id="musicSelect">
-                            <option value="">Без музики</option>
-                            <option value="lofi">Lofi Study</option>
-                            <option value="ambient">Ambient Relax</option>
-                            <option value="classical">Classical Piano</option>
-                            <option value="custom">Власна музика</option>
+                            <option value="calm">🎹 Спокійні акорди</option>
+                            <option value="ambient">🌌 Ембієнт (дуже тихо й повільно)</option>
+                            <option value="piano">🎼 Піаніно-арпеджіо</option>
+                            <option value="file">📁 Мій файл з пристрою</option>
+                            <option value="url">🔗 Посилання на MP3</option>
                         </select>
                     </div>
-                    <div class="setting-item" id="customMusicSection" style="display:none;">
-                        <label>URL вашої музики:</label>
-                        <input type="text" id="customMusicUrl" placeholder="https://example.com/music.mp3">
-                        <button id="addCustomMusic" class="secondary-btn">Додати</button>
+                    <div class="setting-item">
+                        <label for="volumeSlider">Гучність:</label>
+                        <input type="range" id="volumeSlider" min="0" max="100" value="50">
+                        <span id="volumeValue" class="volume-value">50%</span>
                     </div>
+
+                    <div class="setting-item" id="musicFileSection" hidden>
+                        <label>Файл:</label>
+                        <button id="musicFileBtn" class="secondary-btn">📁 Вибрати аудіофайл</button>
+                        <span id="musicFileName" class="music-file-name"></span>
+                        <input type="file" id="musicFileInput" accept="audio/*" hidden>
+                    </div>
+
+                    <div class="setting-item" id="customMusicSection" hidden>
+                        <label for="customMusicUrl">Посилання:</label>
+                        <input type="url" id="customMusicUrl" placeholder="https://example.com/music.mp3">
+                        <button id="addCustomMusic" class="secondary-btn">Застосувати</button>
+                    </div>
+
+                    <div id="musicStatus" class="music-status" role="status"></div>
+
                     <div class="music-info">
-                        <p>💡 <strong>Як додати свою музику:</strong></p>
-                        <ol>
-                            <li>Завантажте MP3 файл на хостинг (Google Drive, Dropbox, тощо)</li>
-                            <li>Отримайте пряме посилання на файл</li>
-                            <li>Вставте URL у поле вище</li>
-                        </ol>
-                        <p>Або відредагуйте файл <code>script.js</code> та додайте свої треки в об'єкт <code>musicTracks</code></p>
+                        <p>💡 <strong>Підказки</strong></p>
+                        <ul>
+                            <li>Перші три варіанти генеруються прямо в браузері — працюють без інтернету й без файлів.</li>
+                            <li><strong>Мій файл</strong> — виберіть MP3 з телефона чи комп’ютера, сайт його запам’ятає.</li>
+                            <li><strong>Посилання</strong> має вести саме на аудіофайл. Посилання Google Drive і Dropbox сайт перетворить автоматично (файл має бути відкритий для всіх).</li>
+                            <li>Поки ви відповідаєте голосом у грі, музика ставиться на паузу, щоб не заважати мікрофону.</li>
+                        </ul>
                     </div>
                 </div>
             </div>
@@ -179,6 +255,14 @@
                         <button class="mode-btn" data-mode="challenge">⚡ Виклик (2 спроби)</button>
                     </div>
                 </div>
+                <div class="setting-group">
+                    <label>Як відповідати:</label>
+                    <div class="answer-buttons">
+                        <button class="answer-btn active" data-answer="keyboard">⌨️ Писати</button>
+                        <button class="answer-btn" data-answer="voice">🎤 Вимовляти</button>
+                    </div>
+                    <p id="voiceSupportNote" class="voice-note" hidden></p>
+                </div>
                 <button id="startGameBtn" class="start-btn">Почати гру</button>
             </div>
 
@@ -206,8 +290,16 @@
                     <button class="speak-btn" id="speakNumberBtn">🔊 Озвучити</button>
                 </div>
 
+                <div class="voice-area" id="voiceArea" hidden>
+                    <button id="micBtn" class="mic-btn" title="Натисніть і скажіть число німецькою">
+                        <span class="mic-icon">🎤</span>
+                        <span class="mic-label">Сказати</span>
+                    </button>
+                    <div id="voiceStatus" class="voice-status">Натисніть 🎤 і скажіть число німецькою</div>
+                </div>
+
                 <div class="input-area">
-                    <input type="text" id="answerInput" placeholder="Введіть німецькою..." autocomplete="off">
+                    <input type="text" id="answerInput" placeholder="Введіть німецькою..." autocomplete="off" autocapitalize="off" spellcheck="false">
                     <button id="checkBtn" class="check-btn">Перевірити</button>
                 </div>
 

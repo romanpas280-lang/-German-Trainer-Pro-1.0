@@ -185,38 +185,228 @@ body {
     flex: 1;
     display: flex;
     flex-direction: column;
-    padding: 30px;
+    align-items: center;
+    gap: 16px;
+    padding: 24px;
     overflow-y: auto;
 }
 
-.text-display .editor-header {
-    margin-bottom: 20px;
+.text-display > * {
+    width: 100%;
+    max-width: 860px;
 }
 
-#builtinTextViewer {
-    max-width: 800px;
-    margin: 0 auto;
-    line-height: 2;
-    font-size: 1.2rem;
+/* ===== ЧИТАЛКА ===== */
+:root {
+    --reader-size: 20px;
+    --reader-bg: #fdfcf8;
+    --reader-fg: #23252f;
+    --reader-muted: #6b6f80;
+    --reader-accent: #5a67d8;
+    --reader-line: rgba(90, 103, 216, 0.45);
+    --reader-hover: rgba(90, 103, 216, 0.12);
+    --reader-speaking: #ffe27a;
+    --reader-border: rgba(0, 0, 0, 0.06);
 }
 
-#builtinTextViewer h2 {
-    margin-bottom: 30px;
-    color: #667eea;
+:root[data-reader-theme="sepia"] {
+    --reader-bg: #f5ecd7;
+    --reader-fg: #3b2f22;
+    --reader-muted: #7d6b53;
+    --reader-accent: #9a5b25;
+    --reader-line: rgba(154, 91, 37, 0.45);
+    --reader-hover: rgba(154, 91, 37, 0.12);
+    --reader-speaking: #f6cf6b;
+    --reader-border: rgba(80, 50, 20, 0.1);
 }
 
-#builtinTextViewer span.word {
+:root[data-reader-theme="dark"] {
+    --reader-bg: #1f2029;
+    --reader-fg: #e4e5ee;
+    --reader-muted: #9a9db3;
+    --reader-accent: #a8b4ff;
+    --reader-line: rgba(168, 180, 255, 0.5);
+    --reader-hover: rgba(168, 180, 255, 0.14);
+    --reader-speaking: rgba(255, 210, 80, 0.35);
+    --reader-border: rgba(255, 255, 255, 0.08);
+}
+
+.reader-card {
+    background: var(--reader-bg);
+    color: var(--reader-fg);
+    border: 1px solid var(--reader-border);
+    border-radius: 16px;
+    padding: clamp(20px, 4vw, 44px) clamp(18px, 5vw, 56px);
+    box-shadow: 0 12px 40px rgba(20, 10, 60, 0.25);
+    transition: background 0.25s, color 0.25s;
+}
+
+.reader-title {
+    font-family: 'Literata', Georgia, 'Times New Roman', serif;
+    font-weight: 600;
+    font-size: calc(var(--reader-size) * 1.5);
+    color: var(--reader-fg);
+    margin-bottom: 0.9em;
+    padding-bottom: 0.4em;
+    border-bottom: 2px solid var(--reader-border);
+}
+
+.reader-text {
+    font-family: 'Literata', Georgia, 'Times New Roman', serif;
+    font-size: var(--reader-size);
+    line-height: 1.9;
+    white-space: pre-line;      /* зберігає переноси рядків з тексту */
+    max-width: 68ch;            /* комфортна довжина рядка */
+    word-spacing: 0.04em;
+}
+
+.reader-text .word {
     cursor: pointer;
-    border-bottom: 2px dotted rgba(255, 255, 255, 0.5);
-    padding: 2px 4px;
-    transition: all 0.2s;
-    display: inline-block;
+    border-bottom: 2px dotted var(--reader-line);
+    border-radius: 4px;
+    padding: 0 1px;
+    transition: background 0.15s, border-color 0.15s;
+    outline: none;
 }
 
-#builtinTextViewer span.word:hover {
-    background: rgba(102, 126, 234, 0.3);
-    border-radius: 5px;
-    transform: translateY(-2px);
+.reader-text .word:hover,
+.reader-text .word:focus-visible {
+    background: var(--reader-hover);
+    border-bottom-color: var(--reader-accent);
+}
+
+.reader-text .word.selected {
+    background: var(--reader-hover);
+    border-bottom: 2px solid var(--reader-accent);
+}
+
+.reader-text .word.speaking {
+    background: var(--reader-speaking);
+    border-bottom-color: transparent;
+}
+
+/* Переклад під словами */
+.reader-text .word .tr {
+    display: none;
+}
+
+.show-tr .reader-text {
+    line-height: 2.6;
+}
+
+.show-tr .reader-text .word {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    line-height: 1.25;
+    vertical-align: baseline;
+    border-bottom: none;
+    padding: 0 2px;
+}
+
+.show-tr .reader-text .word .w {
+    border-bottom: 2px dotted var(--reader-line);
+}
+
+.show-tr .reader-text .word .tr {
+    display: block;
+    font-family: 'Segoe UI', Tahoma, sans-serif;
+    font-size: 0.6em;
+    color: var(--reader-muted);
+    white-space: nowrap;
+    margin-top: 2px;
+}
+
+.reader-hint {
+    text-align: center;
+    font-size: 0.9rem;
+    opacity: 0.75;
+}
+
+/* Панель інструментів читання */
+.reader-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    background: rgba(255, 255, 255, 0.12);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 14px;
+}
+
+.tool-group {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+}
+
+.tool-spacer {
+    flex: 1;
+}
+
+.tool-btn {
+    background: rgba(255, 255, 255, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    border-radius: 10px;
+    color: #fff;
+    padding: 8px 12px;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: background 0.2s;
+    font-family: inherit;
+}
+
+.tool-btn:hover {
+    background: rgba(255, 255, 255, 0.28);
+}
+
+.tool-btn.toggle.active {
+    background: #fff;
+    color: #4b3fa8;
+    border-color: #fff;
+}
+
+.theme-dot {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    border: 2px solid rgba(255, 255, 255, 0.5);
+    cursor: pointer;
+    transition: transform 0.15s;
+}
+
+.theme-dot:hover { transform: scale(1.1); }
+.theme-dot[data-theme-set="light"] { background: #fdfcf8; }
+.theme-dot[data-theme-set="sepia"] { background: #f0e2c2; }
+.theme-dot[data-theme-set="dark"]  { background: #1f2029; }
+
+.theme-dot.active {
+    border-color: #fff;
+    box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.45);
+}
+
+.tool-speed {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.9rem;
+}
+
+.tool-speed select {
+    background: rgba(255, 255, 255, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    border-radius: 8px;
+    color: #fff;
+    padding: 6px 8px;
+    font-family: inherit;
+    cursor: pointer;
+}
+
+.tool-speed select option {
+    background: #333;
+    color: #fff;
 }
 
 .menu-btn.secondary {
@@ -473,28 +663,147 @@ body {
     color: rgba(255, 255, 255, 0.5);
 }
 
+#textInput.hidden {
+    display: none;
+}
+
 #textViewer {
     flex: 1;
-    background: rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(10px);
-    border: 2px solid rgba(255, 255, 255, 0.2);
-    border-radius: 15px;
-    padding: 20px;
     overflow-y: auto;
-    line-height: 1.8;
-    font-size: 1.1rem;
+    max-width: none;
 }
 
-#textViewer span {
+#customText:empty::before {
+    content: "Оберіть або створіть текст ліворуч — тут він з'явиться у зручному для читання вигляді.";
+    font-family: 'Segoe UI', Tahoma, sans-serif;
+    font-size: 1rem;
+    color: var(--reader-muted);
+}
+
+/* ===== СТОРІНКИ ===== */
+.pager {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+}
+
+.pager[hidden] {
+    display: none;
+}
+
+.pager-btn {
+    min-width: 56px;
+    height: 44px;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    background: rgba(255, 255, 255, 0.18);
+    color: #fff;
+    font-size: 1.3rem;
     cursor: pointer;
-    border-bottom: 2px dotted rgba(255, 255, 255, 0.5);
-    padding: 2px 4px;
-    transition: all 0.2s;
+    transition: background 0.2s;
 }
 
-#textViewer span:hover {
-    background: rgba(255, 255, 255, 0.2);
-    border-radius: 5px;
+.pager-btn:hover:not(:disabled) {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+.pager-btn:disabled {
+    opacity: 0.35;
+    cursor: default;
+}
+
+.pager-info {
+    font-size: 0.95rem;
+    min-width: 130px;
+    text-align: center;
+    font-variant-numeric: tabular-nums;
+}
+
+/* ===== ЗАВАНТАЖЕННЯ ФАЙЛІВ ===== */
+.upload-btn {
+    margin: 10px 12px 2px;
+    padding: 9px 12px;
+    border-radius: 8px;
+    border: 1px dashed rgba(255, 255, 255, 0.35);
+    background: rgba(255, 255, 255, 0.05);
+    color: #fff;
+    font-size: 0.9rem;
+    cursor: pointer;
+    font-family: inherit;
+    transition: background 0.2s;
+}
+
+.upload-btn:hover {
+    background: rgba(255, 255, 255, 0.12);
+}
+
+.editor-section {
+    position: relative;
+}
+
+.drop-overlay {
+    display: none;
+    position: absolute;
+    inset: 10px;
+    border: 3px dashed #fff;
+    border-radius: 16px;
+    background: rgba(60, 40, 140, 0.75);
+    color: #fff;
+    font-size: 1.3rem;
+    align-items: center;
+    justify-content: center;
+    z-index: 50;
+    pointer-events: none;
+}
+
+.drag-over .drop-overlay {
+    display: flex;
+}
+
+/* ===== ПОВНОЕКРАННЕ ЧИТАННЯ ===== */
+.lbl-short { display: none; }
+.focus-exit { display: none; }
+
+.reader-area.focus-mode {
+    position: fixed;
+    inset: 0;
+    z-index: 5000;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    padding: max(10px, env(safe-area-inset-top)) max(10px, env(safe-area-inset-right))
+             max(10px, env(safe-area-inset-bottom)) max(10px, env(safe-area-inset-left));
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    overflow: hidden;
+}
+
+.reader-area.focus-mode > * {
+    width: 100%;
+    max-width: 900px;
+}
+
+.reader-area.focus-mode .reader-card {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+.reader-area.focus-mode #textInput,
+.reader-area.focus-mode #toggleEditorBtn,
+.reader-area.focus-mode [data-reader="focus"],
+.reader-area.focus-mode .reader-hint {
+    display: none;
+}
+
+.reader-area.focus-mode .focus-exit {
+    display: inline-block;
+}
+
+body.focus-open {
+    overflow: hidden;
 }
 
 /* ===== РЕЖИМ НАЛАШТУВАНЬ ===== */
@@ -631,6 +940,55 @@ input:checked + .slider:before {
     margin-bottom: 10px;
 }
 
+.setting-item[hidden] {
+    display: none;
+}
+
+/* Рядок з вимикачем завжди горизонтальний, і вимикач не розтягується */
+.setting-item.setting-toggle {
+    flex-direction: row !important;
+    align-items: center !important;
+}
+
+.setting-item label.switch {
+    width: 50px !important;
+    min-width: 50px;
+}
+
+.volume-value {
+    min-width: 3.5em;
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+}
+
+.music-file-name {
+    font-size: 0.92rem;
+    opacity: 0.85;
+    word-break: break-all;
+}
+
+.music-status {
+    margin-top: 4px;
+    padding: 12px 16px;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.08);
+    font-size: 0.98rem;
+    line-height: 1.5;
+}
+
+.music-status:empty { display: none; }
+.music-status.ok    { background: rgba(76, 175, 80, 0.25); border: 1px solid rgba(76, 175, 80, 0.6); }
+.music-status.wait  { background: rgba(255, 193, 7, 0.18); border: 1px solid rgba(255, 193, 7, 0.5); }
+.music-status.error { background: rgba(244, 67, 54, 0.25); border: 1px solid rgba(244, 67, 54, 0.6); }
+
+.music-info ul {
+    margin-left: 20px;
+}
+
+.music-info li {
+    margin-bottom: 6px;
+}
+
 .music-info ol {
     margin-left: 20px;
     margin-bottom: 15px;
@@ -680,13 +1038,13 @@ input:checked + .slider:before {
     opacity: 0.9;
 }
 
-.range-buttons, .mode-buttons {
+.range-buttons, .mode-buttons, .answer-buttons {
     display: flex;
     gap: 10px;
     flex-wrap: wrap;
 }
 
-.range-btn, .mode-btn {
+.range-btn, .mode-btn, .answer-btn {
     flex: 1;
     min-width: 120px;
     padding: 15px 20px;
@@ -699,12 +1057,12 @@ input:checked + .slider:before {
     transition: all 0.3s ease;
 }
 
-.range-btn:hover, .mode-btn:hover {
+.range-btn:hover, .mode-btn:hover, .answer-btn:hover {
     background: rgba(255, 255, 255, 0.2);
     transform: translateY(-2px);
 }
 
-.range-btn.active, .mode-btn.active {
+.range-btn.active, .mode-btn.active, .answer-btn.active {
     background: rgba(255, 255, 255, 0.3);
     border-color: #fff;
     box-shadow: 0 5px 15px rgba(0,0,0,0.2);
@@ -787,6 +1145,75 @@ input:checked + .slider:before {
 .speak-btn:hover {
     background: rgba(255, 255, 255, 0.3);
     transform: scale(1.05);
+}
+
+/* ===== ВІДПОВІДЬ ГОЛОСОМ ===== */
+.voice-area {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.voice-area[hidden] {
+    display: none;
+}
+
+.mic-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: 100%;
+    min-height: 64px;
+    padding: 14px 20px;
+    border: none;
+    border-radius: 16px;
+    background: linear-gradient(135deg, #43e97b 0%, #38c9b0 100%);
+    color: #fff;
+    font-size: 1.2rem;
+    font-weight: bold;
+    font-family: inherit;
+    cursor: pointer;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.2);
+    transition: transform 0.15s, box-shadow 0.15s;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.mic-btn:hover {
+    transform: translateY(-2px);
+}
+
+.mic-icon {
+    font-size: 1.6rem;
+}
+
+.mic-btn.listening {
+    background: linear-gradient(135deg, #f5576c 0%, #e91e63 100%);
+    animation: micPulse 1.2s ease-in-out infinite;
+}
+
+@keyframes micPulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(245, 87, 108, 0.6); }
+    50%      { box-shadow: 0 0 0 14px rgba(245, 87, 108, 0); }
+}
+
+.voice-status {
+    min-height: 1.4em;
+    text-align: center;
+    font-size: 0.98rem;
+    opacity: 0.9;
+}
+
+.voice-status.active { font-weight: 600; opacity: 1; }
+.voice-status.done   { color: #c8ffd9; opacity: 1; }
+.voice-status.error  { color: #ffd0d0; opacity: 1; }
+
+.voice-note {
+    margin-top: 10px;
+    font-size: 0.92rem;
+    color: #ffd0d0;
 }
 
 .input-area {
@@ -892,15 +1319,33 @@ input:checked + .slider:before {
 
 /* ===== TOOLTIP ===== */
 #wordTooltip {
-    position: absolute;
-    background: rgba(0, 0, 0, 0.9);
-    backdrop-filter: blur(10px);
-    padding: 10px 15px;
-    border-radius: 10px;
-    font-size: 1rem;
+    position: fixed;
+    background: #1c1d26;
+    color: #fff;
+    padding: 10px 16px;
+    border-radius: 12px;
     z-index: 10000;
     pointer-events: none;
-    box-shadow: 0 5px 20px rgba(0,0,0,0.4);
+    box-shadow: 0 8px 28px rgba(0, 0, 0, 0.35);
+    max-width: min(320px, calc(100vw - 16px));
+    text-align: center;
+    animation: tipIn 0.12s ease;
+}
+
+#wordTooltip .tip-translation {
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+#wordTooltip .tip-reading {
+    font-size: 0.9rem;
+    color: #b9bdf5;
+    margin-top: 2px;
+}
+
+@keyframes tipIn {
+    from { opacity: 0; transform: translateY(4px); }
+    to   { opacity: 1; transform: translateY(0); }
 }
 
 /* ===== CONTEXT MENU ===== */
@@ -956,6 +1401,31 @@ input:checked + .slider:before {
     }
 }
 
+/* На сенсорних екранах немає наведення — кнопки дій у списку показуємо завжди */
+@media (hover: none) {
+    #folderTree li .item-actions {
+        display: flex;
+    }
+
+    #folderTree li {
+        padding: 8px;
+    }
+
+    #folderTree li .action-btn {
+        padding: 6px 8px;
+        opacity: 0.8;
+    }
+
+    .sidebar-icon-btn {
+        padding: 8px;
+        font-size: 1.15rem;
+    }
+
+    .reader-text .word:hover {
+        background: none;
+    }
+}
+
 /* ===== MOBILE RESPONSIVE ===== */
 @media (max-width: 768px) {
     .text-main {
@@ -989,11 +1459,11 @@ input:checked + .slider:before {
         width: 100%;
     }
 
-    .range-buttons, .mode-buttons {
+    .range-buttons, .mode-buttons, .answer-buttons {
         flex-direction: column;
     }
 
-    .range-btn, .mode-btn {
+    .range-btn, .mode-btn, .answer-btn {
         min-width: 100%;
     }
 
@@ -1001,14 +1471,129 @@ input:checked + .slider:before {
         flex-direction: column;
     }
 
+    /* Шапка в один рядок */
     .app-header {
-        flex-wrap: wrap;
+        position: sticky;
+        top: 0;
+        z-index: 100;
+        padding: 10px 12px;
+        padding-top: max(10px, env(safe-area-inset-top));
+        gap: 10px;
+        background: rgba(102, 110, 220, 0.92);
     }
 
     .app-header h2 {
-        width: 100%;
+        font-size: 1.15rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .back-btn, .icon-btn {
+        padding: 10px 12px;
+        flex-shrink: 0;
+    }
+
+    /* Список вбудованих текстів — горизонтальні «чіпси» */
+    .builtin-sidebar {
+        max-height: none;
+        padding: 10px 12px;
+        background: rgba(30, 30, 30, 0.6);
+    }
+
+    .builtin-sidebar h3 {
+        display: none;
+    }
+
+    #builtinTextList {
+        display: flex;
+        gap: 8px;
+        overflow-x: auto;
+        scrollbar-width: none;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    #builtinTextList::-webkit-scrollbar { display: none; }
+
+    #builtinTextList li {
+        margin: 0;
+        white-space: nowrap;
+        flex-shrink: 0;
+        padding: 9px 14px;
+        border-left: none;
+        border-radius: 20px;
+    }
+
+    /* Панель інструментів — одна смуга з горизонтальною прокруткою */
+    .reader-toolbar {
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        scrollbar-width: none;
+        padding: 8px;
+        gap: 8px;
+    }
+
+    .reader-toolbar::-webkit-scrollbar { display: none; }
+
+    .reader-toolbar > * { flex-shrink: 0; }
+
+    .lbl-long { display: none; }
+    .lbl-short { display: inline; }
+
+    .tool-btn {
+        min-height: 40px;
+        padding: 8px 11px;
+    }
+
+    .theme-dot {
+        width: 32px;
+        height: 32px;
+    }
+
+    .read-btn, .stop-btn {
+        padding: 10px 14px;
+        white-space: nowrap;
+        order: -2;              /* головна кнопка — першою */
+    }
+
+    .focus-exit, [data-reader="focus"] {
         order: -1;
-        margin-bottom: 10px;
+    }
+
+    /* Власні тексти */
+    .editor-section {
+        padding: 12px;
+        gap: 12px;
+    }
+
+    #sidebar {
+        max-height: 45vh;
+    }
+
+    #textInput {
+        height: 120px;
+        font-size: 16px; /* щоб iPhone не збільшував сторінку при фокусі */
+    }
+
+    #textViewer {
+        min-height: 50vh;
+    }
+
+    .reader-card {
+        border-radius: 14px;
+    }
+
+    .reader-text {
+        line-height: 1.8;
+    }
+
+    .pager-btn {
+        min-width: 64px;
+        height: 48px;
+    }
+
+    .reader-area.focus-mode .reader-card {
+        padding: 18px 16px;
     }
 
     .setting-item {
@@ -1045,10 +1630,10 @@ input:checked + .slider:before {
     }
 
     .text-display {
-        padding: 15px;
+        padding: 12px;
     }
 
-    #builtinTextViewer {
-        font-size: 1rem;
+    .tool-spacer {
+        display: none;
     }
 }
